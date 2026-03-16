@@ -1,0 +1,5 @@
+actor User
+participant API
+
+User -> API: request data
+API --> User: response with data

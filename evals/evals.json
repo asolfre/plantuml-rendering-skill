@@ -1,0 +1,93 @@
+{
+  "skill_name": "plantuml-rendering",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Please render the PlantUML file at tests/diagram.puml into a PNG.",
+      "expected_output": "A PNG image is generated next to the source file (tests/diagram.png) and the run reports successful rendering.",
+      "assertions": [
+        {
+          "text": "Run transcript includes skill-script status line 'Rendering diagram for ...' before rendering."
+        },
+        {
+          "text": "Run transcript includes script success line 'Success! Diagram rendered:' followed by the output path."
+        },
+        {
+          "text": "Creates tests/diagram.png next to the input .puml file and file size is greater than 0 bytes."
+        }
+      ],
+      "files": [
+        "tests/diagram.puml"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I pasted a class diagram into tests/system-design.puml. Render it to an image and keep the output in the same folder.",
+      "expected_output": "The renderer is invoked for tests/system-design.puml and produces tests/system-design.png in the same directory.",
+      "assertions": [
+        {
+          "text": "Run transcript includes skill-script status line mentioning tests/system-design.puml."
+        },
+        {
+          "text": "Run transcript includes script success line 'Success! Diagram rendered:' followed by the output path."
+        },
+        {
+          "text": "Creates tests/system-design.png in the same directory as tests/system-design.puml and file size is greater than 0 bytes."
+        }
+      ],
+      "files": [
+        "tests/system-design.puml"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Render tests/broken-sequence.puml. If rendering fails, tell me what likely went wrong and give me an online fallback to generate or validate quickly.",
+      "expected_output": "On failure, the response clearly reports likely causes (missing @startuml/@enduml delimiters or syntax issues) and provides the fallback URL https://www.plantuml.com/plantuml/uml/.",
+      "assertions": [
+        {
+          "text": "Response includes the exact fallback URL https://www.plantuml.com/plantuml/uml/."
+        },
+        {
+          "text": "Response mentions at least one likely cause: missing @startuml/@enduml delimiters, syntax issues, or refers to the script's error output about syntax problems."
+        },
+        {
+          "text": "Script exits with a non-zero exit code (expected exit code 6 for no PNG generated)."
+        }
+      ],
+      "files": [
+        "tests/broken-sequence.puml"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I have this PlantUML diagram I want to render:\n\n@startuml\nAlice -> Bob: Hello\nBob --> Alice: Hi there\n@enduml\n\nSave it somewhere sensible and generate the PNG for me.",
+      "expected_output": "The agent saves the inline PlantUML to a .puml file, runs the render script on it, and confirms the PNG was generated.",
+      "assertions": [
+        {
+          "text": "A .puml file is created on disk containing the @startuml/@enduml block from the prompt."
+        },
+        {
+          "text": "The render script is invoked on the saved .puml file (transcript shows 'Rendering diagram for ...')."
+        },
+        {
+          "text": "A PNG file is generated next to the .puml file and file size is greater than 0 bytes."
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Try to render a PlantUML file at path/that/does/not/exist.puml and let me know what happens.",
+      "expected_output": "The script reports exit code 5 (input file not found) and the agent explains the file was not found.",
+      "assertions": [
+        {
+          "text": "Run transcript includes the error message 'Error: Input file not found:' from the render script."
+        },
+        {
+          "text": "The agent explains to the user that the file does not exist at the specified path."
+        }
+      ],
+      "files": []
+    }
+  ]
+}

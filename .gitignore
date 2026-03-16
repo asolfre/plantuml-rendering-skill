@@ -1,0 +1,7 @@
+.DS_Store
+
+# Generated diagram outputs
+*.png
+
+# Eval workspace artifacts
+plantuml-rendering-workspace/

@@ -1,0 +1,61 @@
+@startuml
+!include <azure/AzureCommon>
+!include <azure/Databases/AzureDataFactory>
+!include <azure/Databases/AzureSqlDatabase>
+!include <azure/Storage/AzureDataLakeStorage>
+!include <azure/AIMachineLearning/AzureMachineLearningService>
+!include <azure/Security/AzureKeyVault>
+
+left to right direction
+
+package "On-Premises / External" {
+    AzureSqlDatabase(SQL, "SQL Server\n(Health_Services_Ops_RPT)", "")
+    rectangle "SFTP Server\n(ast-tech)" as SFTP
+}
+
+package "Azure Cloud" {
+    package "Azure Data Factory" {
+        AzureDataFactory(IngestPL, "Ingestion Pipelines", "")
+        AzureDataFactory(TrainPL, "Training Pipelines", "")
+        AzureDataFactory(InferPL, "Inference Pipelines", "")
+        AzureDataFactory(DF, "Data Flows", "")
+    }
+
+    package "ADLS Gen2" {
+        AzureDataLakeStorage(Raw, "Raw Data", "")
+        AzureDataLakeStorage(Reduced, "Reduced Data", "")
+        AzureDataLakeStorage(TrainData, "Training Data", "")
+        AzureDataLakeStorage(InferData, "Inference Data", "")
+    }
+
+    package "Azure Machine Learning" {
+        AzureMachineLearningService(AML, "ML Workspace", "")
+    }
+
+    AzureKeyVault(KV, "Key Vault", "Secrets")
+}
+
+' Data Flow
+SQL --> IngestPL : Copy Activity
+IngestPL --> Raw : Parquet
+IngestPL --> Reduced : Parquet
+
+Reduced --> DF : Source
+DF --> TrainData : Transform
+DF --> InferData : Transform
+
+TrainPL --> AML : Trigger
+TrainData --> AML : Input
+AML --> Raw : Model Artifact
+
+InferPL --> AML : Trigger
+InferData --> AML : Input
+AML --> Raw : Predictions
+
+Raw --> SFTP : Export Results
+
+' Secret Management
+KV ..> IngestPL : Secrets
+KV ..> TrainPL : Secrets
+KV ..> InferPL : Secrets
+@enduml

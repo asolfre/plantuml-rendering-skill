@@ -1,0 +1,15 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class User {
+    +id: UUID
+    +email: string
+}
+
+class Order {
+    +id: UUID
+    +total: decimal
+}
+
+User "1" --> "*" Order : places
+@enduml
